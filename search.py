@@ -90,7 +90,7 @@ def depthFirstSearch(problem):
     state, actions, cost, current_state, visited_states = None, None, None, None, {}
     fringe_list = util.Stack() # Stack to maintain the fringe list
     fringe_list.push((problem.getStartState(), [None], 0)) # Create a dummy successor for start node
-    while True:
+    while not fringe_list.isEmpty(): # Continue to search until all nodes have been scanned
         state, actions, cost = fringe_list.pop() # Pop node from the fringe list
         visited_states[state] = True # Mark node as visited
         current_state = state
@@ -110,7 +110,7 @@ def breadthFirstSearch(problem):
     state, actions, cost, current_state, visited_states = None, None, None, None, {}
     fringe_list = util.Queue()  # Queue to maintain the fringe list
     fringe_list.push((problem.getStartState(), [None], 0))  # Create a dummy successor for start node
-    while True:
+    while not fringe_list.isEmpty(): # Continue to search until all nodes have been scanned
         state, actions, cost = fringe_list.pop()  # Pop node from the fringe list
         visited_states[state] = True  # Mark node as visited
         current_state = state
@@ -130,7 +130,7 @@ def uniformCostSearch(problem):
     state, actions, cost, current_state, visited_states = None, None, None, None, {}
     fringe_list = util.PriorityQueue()  # PriorityQueue to maintain the fringe list with cost as priority
     fringe_list.push((problem.getStartState(), [None], 0), 0)  # Create a dummy successor for start node
-    while True:
+    while not fringe_list.isEmpty(): # Continue to search until all nodes have been scanned
         state, actions, cost = fringe_list.pop()  # Pop node from the fringe list
         visited_states[state] = True  # Mark node as visited
         current_state = state
@@ -140,7 +140,7 @@ def uniformCostSearch(problem):
             if successor[0] in visited_states:
                 continue  # State already visited so skip it
             else:
-                # Add child node to fringe list with priority set as the total cost to reach the node {g(n)}
+                # Add child node to fringe list with priority set as the total cost to reach the node from start {g(n)}
                 # prepend previous actions to maintain the path
                 fringe_list.push((successor[0], actions + [successor[1]], cost + successor[2]), cost + successor[2])
     return actions[1:]  # Skip the direction for the starting node which was added as dummy
@@ -155,8 +155,27 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
+    state, actions, cost, current_state, visited_states = None, None, None, None, {}
+    fringe_list = util.PriorityQueue()  # PriorityQueue to maintain the fringe list with cost as priority
+    fringe_list.push((problem.getStartState(), [None], 0), 0)  # Create a dummy successor for start node
+    while not fringe_list.isEmpty(): # Continue to search until all nodes have been scanned
+        state, actions, cost = fringe_list.pop()  # Pop node from the fringe list
+        visited_states[state] = True  # Mark node as visited
+        current_state = state
+        if problem.isGoalState(current_state):
+            break  # Break the loop if goal state is reached
+        for successor in problem.getSuccessors(current_state):  # For every child node
+            if successor[0] in visited_states:
+                continue  # State already visited so skip it
+            else:
+                # Add child node to fringe list with priority set as the sum of cost to reach the node n from start
+                # and the heuristic cost to reach the goal state from the node n i.e. {f(n) = g(n) + h(n)}
+                # prepend previous actions to maintain the path
+                g_of_n = cost + successor[2]
+                h_of_n = heuristic(successor[0], problem)
+                f_of_n = g_of_n + h_of_n
+                fringe_list.push((successor[0], actions + [successor[1]], f_of_n), f_of_n)
+    return actions[1:]  # Skip the direction for the starting node which was added as dummy
 
 # Abbreviations
 bfs = breadthFirstSearch
