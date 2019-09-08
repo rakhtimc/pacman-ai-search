@@ -87,7 +87,20 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    state, actions, cost, current_state, visited_states = None, None, None, None, {}
+    fringe_list = util.Stack() # Stack to maintain the fringe list
+    fringe_list.push((problem.getStartState(), [None], 0)) # Create a dummy successor for start node
+    while not problem.isGoalState(current_state): # Continue searching until goal state is reached
+        state, actions, cost = fringe_list.pop() # Pop node from the fringe list
+        visited_states[state] = True # Mark node as visited
+        current_state = state
+        for successor in problem.getSuccessors(current_state): # For every child node
+            if successor[0] in visited_states:
+                continue # State already visited so skip it
+            else:
+                # Add child node to fringe list; append previous actions to maintain the path
+                fringe_list.push((successor[0], actions + [successor[1]], successor[2]))
+    return actions[1:] # Skip the direction for the starting node added as dummy
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
