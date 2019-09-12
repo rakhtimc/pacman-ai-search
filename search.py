@@ -87,64 +87,58 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    current_state, path_actions, path_cost, visited_states = None, [], 0, {}
+    visited_states = set() # Set to maintain visited nodes
     fringe_list = util.Stack() # Stack to maintain the fringe list
-    fringe_list.push((problem.getStartState(), [None], 0)) # Create a dummy successor for start node
+    fringe_list.push((problem.getStartState(), [], 0)) # Create a dummy successor for start node
     while not fringe_list.isEmpty(): # Continue to search until all nodes have been scanned
-        current_state, path_actions, path_cost = fringe_list.pop() # Pop node from the fringe list
-        visited_states[current_state] = True # Mark node as visited
+        current_state, path_actions, path_cost = fringe_list.pop()
         if problem.isGoalState(current_state):
-            break # Break the loop if goal state is reached
+            return path_actions # Return the path if goal is reached
+        visited_states.add(current_state) # Add node to visited nodes
         for state, action, cost in problem.getSuccessors(current_state): # For every child node
-            if state in visited_states:
-                continue # Skip the node if it is already visited
-            else:
+            if state not in visited_states: # Skip if node is already visited
                 # Add child node to fringe list; append previous actions to maintain the path
                 fringe_list.push((state, path_actions + [action], cost))
-    return path_actions[1:] # Skip the direction for the starting node added as dummy
+    return []
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    current_state, path_actions, path_cost, visited_states = None, [], 0, {}
+    visited_states, explored_states = set(), set()  # Set to maintain visited and explored nodes
     fringe_list = util.Queue()  # Queue to maintain the fringe list
-    fringe_list.push((problem.getStartState(), [None], 0))  # Create a dummy successor for start node
+    visited_states.add(problem.getStartState())
+    fringe_list.push((problem.getStartState(), [], 0))  # Create a dummy successor for start node
     while not fringe_list.isEmpty():  # Continue to search until all nodes have been scanned
-        current_state, path_actions, path_cost = fringe_list.pop()  # Pop node from the fringe list
-        visited_states[current_state] = True  # Mark node as visited
+        current_state, path_actions, path_cost = fringe_list.pop()
         if problem.isGoalState(current_state):
-            break  # Break the loop if goal state is reached
+            return path_actions # Return the path if goal is reached
+        explored_states.add(current_state) # Add node to explored nodes
         for state, action, cost in problem.getSuccessors(current_state):  # For every child node
-            if state in visited_states:
-                continue # Skip the node if it is already visited
-            else:
-                # Add child node to fringe list; append previous actions to maintain the path
+            # Skip if node is already visited or explored
+            if state not in visited_states and state not in explored_states:
+                # Add child node to fringe list and visited nodes; append previous actions to maintain the path
+                visited_states.add(state)
                 fringe_list.push((state, path_actions + [action], cost))
-    return path_actions[1:]  # Skip the direction for the starting node added as dummy
+    return []
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    current_state, path_actions, path_cost, visited_states = None, [], 0, {}
-    fringe_list = util.PriorityQueue() # PriorityQueue to maintain the fringe list with cost as priority
-    fringe_list.push((problem.getStartState(), [None], 0), 0)  # Create a dummy successor for start node
+    explored_states = set() # Set to maintain explored nodes
+    fringe_list = util.PriorityQueue()  # PriorityQueue to maintain the fringe list
+    fringe_list.push((problem.getStartState(), [], 0), 0)  # Create a dummy successor for start node
     while not fringe_list.isEmpty():  # Continue to search until all nodes have been scanned
-        current_state, path_actions, path_cost = fringe_list.pop()  # Pop node from the fringe list
-        visited_states[current_state] = True  # Mark node as visited
+        current_state, path_actions, path_cost = fringe_list.pop()
         if problem.isGoalState(current_state):
-            break  # Break the loop if goal state is reached
-        for state, action, cost in problem.getSuccessors(current_state):  # For every child node
-            if state in visited_states:
-                continue  # Skip the node if it is already visited
-            else:
-                # Update fringe list with child node as follows:
-                # if child not in fringe list then add it with priority set as the total cost to reach the node
-                # from start {g(n)}
-                # else update the priority of the child node in fringe list with lower of existing path cost
-                # and new path cost
-                # prepend previous actions to maintain the path
-                fringe_list.update((state, path_actions + [action], cost + path_cost), cost + path_cost)
-    return path_actions[1:]  # Skip the direction for the starting node added as dummy
+            return path_actions  # Return the path if goal is reached
+        if current_state not in explored_states: # Explore current node only if not already explored
+            explored_states.add(current_state) # Add node to explored nodes
+            for state, action, cost in problem.getSuccessors(current_state):  # For every child node
+                if state not in explored_states: # Skip if node is already explored
+                    # Add child node to fringe list; append previous actions to maintain the path
+                    # Calculate priority as cost to reach node n from start {f(n) = g(n)}
+                    fringe_list.push((state, path_actions + [action], path_cost + cost), path_cost + cost)
+    return []
 
 def nullHeuristic(state, problem=None):
     """
@@ -156,31 +150,25 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    current_state, path_actions, path_cost, visited_states, explored_states = None, [], 0, set(), {}
-    fringe_list = util.PriorityQueue()  # PriorityQueue to maintain the fringe list with cost as priority
-    fringe_list.push((problem.getStartState(), [None], 0), 0)  # Create a dummy successor for start node
+    explored_states = set()  # Set to maintain explored nodes
+    fringe_list = util.PriorityQueue()  # PriorityQueue to maintain the fringe list
+    fringe_list.push((problem.getStartState(), [], 0), 0)  # Create a dummy successor for start node
     while not fringe_list.isEmpty():  # Continue to search until all nodes have been scanned
-        current_state, path_actions, path_cost = fringe_list.pop()  # Pop node from the fringe list
-        explored_states[current_state] = True  # Mark node as visited
+        current_state, path_actions, path_cost = fringe_list.pop()
         if problem.isGoalState(current_state):
-            break  # Break the loop if goal state is reached
-        for state, action, cost in problem.getSuccessors(current_state):  # For every child node
-            if state in visited_states or state in explored_states:
-                continue  # Skip the node if it is already visited
-            else:
-                # Calculate priority as the sum of cost to reach the node n from start and the heuristic cost to reach
-                # the goal state from the node n i.e. {f(n) = g(n) + h(n)}
-                # Update fringe list with child node as follows:
-                # if child not in fringe list then add it with priority
-                # else update the priority of the child node in fringe list with lower of existing priority
-                # and new priority
-                # prepend previous actions to maintain the path
-                g_of_n = path_cost + cost
-                h_of_n = heuristic(state, problem)
-                f_of_n = g_of_n + h_of_n
-                visited_states.add(state)
-                fringe_list.update((state, path_actions + [action], f_of_n), f_of_n)
-    return path_actions[1:]  # Skip the direction for the starting node added as dummy
+            return path_actions  # Return the path if goal is reached
+        if current_state not in explored_states:  # Explore current node only if not already explored
+            explored_states.add(current_state)  # Add node to explored nodes
+            for state, action, cost in problem.getSuccessors(current_state):  # For every child node
+                if state not in explored_states:  # Skip if node is already explored
+                    # Add child node to fringe list; append previous actions to maintain the path
+                    # Calculate priority as the sum of cost to reach the node n from start and the heuristic cost to
+                    # reach the goal state from the node n i.e. {f(n) = g(n) + h(n)}
+                    g_of_n = path_cost + cost
+                    h_of_n = heuristic(state, problem)
+                    f_of_n = g_of_n + h_of_n
+                    fringe_list.push((state, path_actions + [action], g_of_n), f_of_n)
+    return []
 
 # Abbreviations
 bfs = breadthFirstSearch
