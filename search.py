@@ -156,16 +156,16 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    current_state, path_actions, path_cost, visited_states = None, [], 0, {}
+    current_state, path_actions, path_cost, visited_states, explored_states = None, [], 0, set(), {}
     fringe_list = util.PriorityQueue()  # PriorityQueue to maintain the fringe list with cost as priority
     fringe_list.push((problem.getStartState(), [None], 0), 0)  # Create a dummy successor for start node
     while not fringe_list.isEmpty():  # Continue to search until all nodes have been scanned
         current_state, path_actions, path_cost = fringe_list.pop()  # Pop node from the fringe list
-        visited_states[current_state] = True  # Mark node as visited
+        explored_states[current_state] = True  # Mark node as visited
         if problem.isGoalState(current_state):
             break  # Break the loop if goal state is reached
         for state, action, cost in problem.getSuccessors(current_state):  # For every child node
-            if state in visited_states:
+            if state in visited_states or state in explored_states:
                 continue  # Skip the node if it is already visited
             else:
                 # Calculate priority as the sum of cost to reach the node n from start and the heuristic cost to reach
@@ -178,6 +178,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 g_of_n = path_cost + cost
                 h_of_n = heuristic(state, problem)
                 f_of_n = g_of_n + h_of_n
+                visited_states.add(state)
                 fringe_list.update((state, path_actions + [action], f_of_n), f_of_n)
     return path_actions[1:]  # Skip the direction for the starting node added as dummy
 
