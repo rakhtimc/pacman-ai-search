@@ -455,11 +455,19 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    distances = sorted([manhattanDistance(position, food_pos) for food_pos in foodGrid.asList()])
-    return distances[-1] if len(distances) > 0 else 0
-
-def manhattanDistance(pos1, pos2):
-    return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
+    # The heuristic function used here is the mazeDistance from the current position of pacman to the farthest food
+    # The mazeDistance is the actual optimal distance pacman needs to travel to reach the destination considering it
+    # cannot cross over the walls
+    max_distance, max_food_pos = 0, (-1, -1)
+    for food_pos in foodGrid.asList():
+        # Cache the mazeDistance in the heuristicInfo dictionary as it will be used for multiple branches
+        if (position, food_pos) not in problem.heuristicInfo:
+            problem.heuristicInfo[(position, food_pos)] = mazeDistance(position, food_pos, problem.startingGameState)
+        distance = problem.heuristicInfo[(position, food_pos)]
+        if distance > max_distance:
+            max_distance = distance
+            max_food_pos = food_pos
+    return max_distance
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
