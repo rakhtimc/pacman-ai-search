@@ -288,7 +288,7 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        self.startingGameState = startingGameState #to store the game state
+        self.startingGameState = startingGameState  # to store the game state
         self.heuristicInfo = {}  # A dictionary for the heuristic to store information
 
     def getStartState(self):
@@ -305,7 +305,7 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        return len(state[1]) == 0 #to ensure all the corners were visited
+        return len(state[1]) == 0  # to ensure all the corners were visited
 
     def getSuccessors(self, state):
         """
@@ -333,13 +333,13 @@ class CornersProblem(search.SearchProblem):
             nextx, nexty = int(x + dx), int(y + dy)
             if not self.walls[nextx][nexty]:
                 nextCorner = list(state[1])
-                if (nextx,nexty) in  nextCorner:
-                   nextCorner.remove((nextx,nexty))
-                   successors.append((((nextx, nexty), tuple(nextCorner)), action, 1))
+                if (nextx, nexty) in nextCorner:
+                    nextCorner.remove((nextx, nexty))
+                    successors.append((((nextx, nexty), tuple(nextCorner)), action, 1))
                 else:
                     successors.append((((nextx, nexty), tuple(nextCorner)), action, 1))
 
-        self._expanded += 1 # DO NOT CHANGE
+        self._expanded += 1  # DO NOT CHANGE
         return successors
 
     def getCostOfActions(self, actions):
@@ -378,14 +378,14 @@ def cornersHeuristic(state, problem):
     # The mazeDistance is the actual optimal distance pacman needs to travel to reach the destination considering it
     # cannot cross over the walls
     max_distance, max_corner_pos = 0, (-1, -1)
-    for food_pos in list(corners):
+    for corner in list(corners):
         # Cache the mazeDistance in the heuristicInfo dictionary as it will be used for multiple branches
-        if (position, corners) not in problem.heuristicInfo:
-            problem.heuristicInfo[(position, corners)] = mazeDistance(position, food_pos, problem.startingGameState)
-        distance = problem.heuristicInfo[(position, corners)]
+        if (position, corner) not in problem.heuristicInfo:
+            problem.heuristicInfo[(position, corner)] = mazeDistance(position, corner, problem.startingGameState)
+        distance = problem.heuristicInfo[(position, corner)]
         if distance > max_distance:
             max_distance = distance
-            max_corner_pos = corners
+            max_corner_pos = corner
     return max_distance
 
 class AStarCornersAgent(SearchAgent):
