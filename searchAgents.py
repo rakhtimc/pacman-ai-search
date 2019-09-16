@@ -335,9 +335,7 @@ class CornersProblem(search.SearchProblem):
                 nextCorner = list(state[1])
                 if (nextx, nexty) in nextCorner:
                     nextCorner.remove((nextx, nexty))
-                    successors.append((((nextx, nexty), tuple(nextCorner)), action, 1))
-                else:
-                    successors.append((((nextx, nexty), tuple(nextCorner)), action, 1))
+                successors.append((((nextx, nexty), tuple(nextCorner)), action, 1))
 
         self._expanded += 1  # DO NOT CHANGE
         return successors
