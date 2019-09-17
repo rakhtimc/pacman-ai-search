@@ -40,6 +40,7 @@ from game import Actions
 import util
 import time
 import search
+import resource
 
 class GoWestAgent(Agent):
     "An agent that goes West until it can't."
@@ -114,8 +115,9 @@ class SearchAgent(Agent):
         problem = self.searchType(state) # Makes a new search problem
         self.actions  = self.searchFunction(problem) # Find a path
         totalCost = problem.getCostOfActions(self.actions)
-        print('Path found with total cost of %d in %.1f seconds' % (totalCost, time.time() - starttime))
+        print('Path found with total cost of %d in %.1f Ms' % (totalCost, (time.time() - starttime)*1000))
         if '_expanded' in dir(problem): print('Search nodes expanded: %d' % problem._expanded)
+        print('Memory usage: %.2f MB' % (resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0))
 
     def getAction(self, state):
         """
